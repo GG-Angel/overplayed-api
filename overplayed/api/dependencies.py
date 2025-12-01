@@ -1,7 +1,7 @@
 import time
 from fastapi import Request
 from spotipy.oauth2 import SpotifyOAuth
-from app.config import settings
+from overplayed.config import settings
 
 def create_spotify_oauth(request: Request) -> SpotifyOAuth:
     return SpotifyOAuth(
