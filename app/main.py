@@ -2,8 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 import spotipy
 
-from app.dependencies import get_token_info
-from app.routers import auth
+from app.api.dependencies import get_token_info
+from app.api.routers import auth
 from app.config import settings
 from starlette.middleware.sessions import SessionMiddleware
 

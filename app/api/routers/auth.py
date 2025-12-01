@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 from app.config import settings
-from app.dependencies import create_spotify_oauth
+from app.api.dependencies import create_spotify_oauth
 
 router = APIRouter(
     prefix='/auth',
