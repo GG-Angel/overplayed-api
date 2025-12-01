@@ -3,24 +3,22 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 import spotipy
 from .routers import auth
+from .config import settings
 from starlette.middleware.sessions import SessionMiddleware
+
+session_secret_key = settings.session_secret_key
+if not session_secret_key:
+    raise ValueError("Session secret key is not set.")
 
 app = FastAPI()
 
-secret_key = os.getenv("SESSION_SECRET_KEY")
-if not secret_key:
-    raise RuntimeError("Environment variable 'SESSION_SECRET_KEY' is not set")
-
 app.add_middleware(
     SessionMiddleware,
-    secret_key=secret_key,
+    secret_key=session_secret_key,
+    session_cookie="session"
 )
 
 app.include_router(auth.router)
-
-@app.get("/")
-def index():
-  return {"message": "Hello, World!"}
 
 @app.get("/test")
 def test(request: Request):
