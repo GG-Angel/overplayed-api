@@ -1,9 +1,10 @@
-import os
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 import spotipy
-from .routers import auth
-from .config import settings
+
+from app.dependencies import get_token_info
+from app.routers import auth
+from app.config import settings
 from starlette.middleware.sessions import SessionMiddleware
 
 session_secret_key = settings.session_secret_key
@@ -23,7 +24,7 @@ app.include_router(auth.router)
 @app.get("/test")
 def test(request: Request):
     try:
-        token_info = auth.get_token_info(request)
+        token_info = get_token_info(request)
     except Exception as e:
         print(e)
         return RedirectResponse(url="/auth/login")
