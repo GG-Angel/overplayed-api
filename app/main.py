@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
+import spotipy
 from .routers import auth
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -25,7 +26,13 @@ def index():
 def test(request: Request):
     try:
         token_info = auth.get_token_info(request)
-        return {"logged_in": True, "token_info": token_info}
     except Exception as e:
         print(e)
         return RedirectResponse(url="/auth/login")
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    playlists_response = sp.current_user_playlists(limit=10, offset=0)
+    if playlists_response and 'items' in playlists_response and playlists_response['items']:
+        playlists = playlists_response['items'][0]
+    else:
+        return {"error": "No playlists found"}
+    return {"playlists": playlists}

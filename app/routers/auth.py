@@ -1,4 +1,5 @@
 import os
+import time
 from fastapi import APIRouter, Request
 from fastapi.datastructures import URL
 from fastapi.responses import RedirectResponse
@@ -43,3 +44,10 @@ def get_token_info(request: Request):
     token_info = request.session.get(SESSION_TOKEN_INFO, None)
     if not token_info:
         raise Exception("User not logged in")
+
+    now = int(time.time())
+    is_expired = token_info['expires_at'] - now < 60
+    if (is_expired):
+        sp_oauth = create_spotify_oauth(request.url_for("callback"))
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+    return token_info
