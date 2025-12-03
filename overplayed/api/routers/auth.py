@@ -3,10 +3,7 @@ from fastapi.responses import RedirectResponse
 from overplayed.config import settings
 from overplayed.api.dependencies import create_spotify_oauth
 
-router = APIRouter(
-    prefix='/auth',
-    tags=['auth']
-)
+router = APIRouter()
 
 @router.get("/login")
 def login(request: Request):
