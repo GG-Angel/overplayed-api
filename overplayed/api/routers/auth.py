@@ -5,11 +5,13 @@ from overplayed.api.dependencies import create_spotify_oauth
 
 router = APIRouter()
 
+
 @router.get("/login")
 def login(request: Request):
     sp_oauth = create_spotify_oauth(request)
     auth_url = sp_oauth.get_authorize_url()
     return RedirectResponse(auth_url)
+
 
 @router.get("/callback")
 def callback(request: Request):

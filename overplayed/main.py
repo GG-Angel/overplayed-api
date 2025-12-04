@@ -14,9 +14,7 @@ if not session_secret_key:
 app = FastAPI(title="Overplayed", description="Spotify Playlist Manager")
 
 app.add_middleware(
-    SessionMiddleware,
-    secret_key=session_secret_key,
-    session_cookie="session"
+    SessionMiddleware, secret_key=session_secret_key, session_cookie="session"
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"], include_in_schema=False)
