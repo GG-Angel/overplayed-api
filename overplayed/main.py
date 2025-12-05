@@ -1,8 +1,5 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
-import spotipy
+from fastapi import FastAPI
 
-from overplayed.api.dependencies import get_token_info
 from overplayed.api.routers import auth, playlist
 from overplayed.config import settings
 from starlette.middleware.sessions import SessionMiddleware

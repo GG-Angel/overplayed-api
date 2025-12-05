@@ -25,8 +25,13 @@ def get_token_info(request: Request) -> dict:
         token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
     return token_info
 
+def get_user_id(sp: spotipy.Spotify) -> str:
+    user = sp.current_user()
+    if not user:
+        raise ValueError("Failed to fetch user information")
+    return user["id"]
 
-def get_owned_playlists(sp: spotipy.Spotify) -> list:
+def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
     user = sp.current_user()
     if not user:
         raise ValueError("Failed to fetch user information")
@@ -44,7 +49,7 @@ def get_owned_playlists(sp: spotipy.Spotify) -> list:
             break  # No more playlists to fetch
 
         owned_playlists.extend(
-            filter(lambda p: p["owner"]["id"] == user["id"], playlists)
+            filter(lambda p: p["owner"]["id"] == user_id, playlists)
         )
         offset += len(playlists)
         if len(playlists) < max_batch_size:
