@@ -15,4 +15,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"], include_in_schema=False)
-app.include_router(playlist.router, prefix="/playlist", tags=["playlist"])
+app.include_router(playlist.router, prefix="/playlists", tags=["playlists"])
+
+
+@app.get("/")
+def root():
+    return "Logged in successfully!"

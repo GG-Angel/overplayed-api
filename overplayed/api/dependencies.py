@@ -28,16 +28,12 @@ def get_token_info(request: Request) -> dict:
 
 def get_user_id(sp: spotipy.Spotify) -> str:
     user = sp.current_user()
-    if not user:
+    if not user or "id" not in user:
         raise ValueError("Failed to fetch user information")
     return user["id"]
 
 
-def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
-    user = sp.current_user()
-    if not user:
-        raise ValueError("Failed to fetch user information")
-
+def fetch_user_playlists(sp: spotipy.Spotify, user_id: str) -> list:
     owned_playlists = []
     max_batch_size = 50
     offset = 0
@@ -47,10 +43,8 @@ def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
             raise ValueError("Failed to fetch playlists")
 
         playlists = data["items"]
-        if not playlists:
-            break  # No more playlists to fetch
-
         owned_playlists.extend(filter(lambda p: p["owner"]["id"] == user_id, playlists))
+
         if len(playlists) < max_batch_size:
             break  # Fetched all playlists
         offset += len(playlists)
@@ -58,29 +52,31 @@ def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
     return owned_playlists
 
 
-def get_playlist_songs(sp: spotipy.Spotify, playlist_id: list) -> list:
-    playlist_songs = {}
+def fetch_playlist_tracks(sp: spotipy.Spotify, playlist_id: str) -> list:
+    playlist_tracks = {}
+    max_batch_size = 100
     offset = 0
     while True:
-        batch = sp.playlist_items(
+        data = sp.playlist_items(
             playlist_id,
-            limit=50,
             offset=offset,
-            fields="items(added_at,track(id,name,album(name)))",
-            additional_types=["track"],
+            limit=max_batch_size,
+            fields="items(added_at,track(id,name,album(name))),total",
         )
-        if not batch:
-            raise ValueError(f"Failed to fetch songs for playlist {playlist_id}")
+        if not data:
+            raise ValueError("Failed to fetch playlist items")
 
-        songs = batch["items"]
-        if not songs:
-            break  # No more songs to fetch
+        tracks = list(map(lambda item: item["track"], data["items"]))
+        for track in tracks:
+            if track["id"] not in playlist_tracks:
+                playlist_tracks[track["id"]] = track # Deduplicate tracks by ID
 
-        for song in songs:
-            playlist_songs[song["track"]["id"]] = song
+        if len(tracks) < max_batch_size:
+            break
+        offset += len(tracks)
+        time.sleep(1)
 
-        if len(songs) < 50:
-            break  # Fetched all songs
-        offset += len(songs)
+    return list(playlist_tracks.values())
 
-    return list(playlist_songs.values())
+
+# TODO: cache results for 1-6 hours until user applies playlist changes on frontend
