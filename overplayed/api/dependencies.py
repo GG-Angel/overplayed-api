@@ -25,11 +25,13 @@ def get_token_info(request: Request) -> dict:
         token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
     return token_info
 
+
 def get_user_id(sp: spotipy.Spotify) -> str:
     user = sp.current_user()
     if not user:
         raise ValueError("Failed to fetch user information")
     return user["id"]
+
 
 def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
     user = sp.current_user()
@@ -48,11 +50,37 @@ def get_owned_playlists(sp: spotipy.Spotify, user_id: str) -> list:
         if not playlists:
             break  # No more playlists to fetch
 
-        owned_playlists.extend(
-            filter(lambda p: p["owner"]["id"] == user_id, playlists)
-        )
-        offset += len(playlists)
+        owned_playlists.extend(filter(lambda p: p["owner"]["id"] == user_id, playlists))
         if len(playlists) < max_batch_size:
             break  # Fetched all playlists
+        offset += len(playlists)
 
     return owned_playlists
+
+
+def get_playlist_songs(sp: spotipy.Spotify, playlist_id: list) -> list:
+    playlist_songs = {}
+    offset = 0
+    while True:
+        batch = sp.playlist_items(
+            playlist_id,
+            limit=50,
+            offset=offset,
+            fields="items(added_at,track(id,name,album(name)))",
+            additional_types=["track"],
+        )
+        if not batch:
+            raise ValueError(f"Failed to fetch songs for playlist {playlist_id}")
+
+        songs = batch["items"]
+        if not songs:
+            break  # No more songs to fetch
+
+        for song in songs:
+            playlist_songs[song["track"]["id"]] = song
+
+        if len(songs) < 50:
+            break  # Fetched all songs
+        offset += len(songs)
+
+    return list(playlist_songs.values())
