@@ -1,31 +1,27 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 import spotipy
 from app.dependencies import (
     fetch_user_playlists,
     fetch_playlist_tracks,
-    get_token_info,
-    get_user_id,
+    get_spotify_client,
+    get_user,
 )
 
 router = APIRouter()
 
 
 @router.get("/")
-def get_playlists(request: Request):
+def get_playlists(sp: spotipy.Spotify = Depends(get_spotify_client)):
     try:
-        token_info = get_token_info(request)
+        return fetch_user_playlists(sp, get_user(sp)["id"])
     except Exception:
         return RedirectResponse(url="/auth/login")
-    sp = spotipy.Spotify(auth=token_info["access_token"])
-    return fetch_user_playlists(sp, get_user_id(sp))
 
 
 @router.get("/{playlist_id}")
-def get_tracks(playlist_id: str, request: Request):
+def get_tracks(playlist_id: str, sp: spotipy.Spotify = Depends(get_spotify_client)):
     try:
-        token_info = get_token_info(request)
+        return fetch_playlist_tracks(sp, playlist_id)
     except Exception:
         return RedirectResponse(url="/auth/login")
-    sp = spotipy.Spotify(auth=token_info["access_token"])
-    return fetch_playlist_tracks(sp, playlist_id)

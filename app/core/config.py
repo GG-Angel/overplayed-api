@@ -15,5 +15,7 @@ class Config(BaseSettings):
         "playlist-read-private playlist-modify-private playlist-modify-public"
     )
 
+    session_secret_key: str = ""
+
 
 config = Config()

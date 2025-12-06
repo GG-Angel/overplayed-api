@@ -26,11 +26,16 @@ def get_token_info(request: Request) -> dict:
     return token_info
 
 
-def get_user_id(sp: spotipy.Spotify) -> str:
-    user = sp.current_user()
-    if not user or "id" not in user:
-        raise ValueError("Failed to fetch user information")
-    return user["id"]
+def get_spotify_client(request: Request) -> spotipy.Spotify:
+    token_info = get_token_info(request)
+    return spotipy.Spotify(auth=token_info["access_token"])
+
+
+def get_user(sp: spotipy.Spotify) -> dict:
+    user = sp.me()
+    if not user:
+        raise ValueError("Failed to fetch user info")
+    return user
 
 
 def fetch_user_playlists(sp: spotipy.Spotify, user_id: str) -> list:
