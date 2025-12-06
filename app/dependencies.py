@@ -2,20 +2,20 @@ import time
 import spotipy
 from fastapi import Request
 from spotipy.oauth2 import SpotifyOAuth
-from overplayed.config import settings
+from app.core.config import config
 
 
 def create_spotify_oauth(request: Request) -> SpotifyOAuth:
     return SpotifyOAuth(
-        client_id=settings.spotify_client_id,
-        client_secret=settings.spotify_client_secret,
+        client_id=config.sp_client_id,
+        client_secret=config.sp_client_secret,
         redirect_uri=request.url_for("callback"),
-        scope=settings.spotify_scope,
+        scope=config.sp_scope,
     )
 
 
 def get_token_info(request: Request) -> dict:
-    token_info = request.session.get(settings.session_token_info, None)
+    token_info = request.session.get("token_info", None)
     if not token_info:
         raise Exception("User not logged in")
     now = int(time.time())
@@ -69,7 +69,7 @@ def fetch_playlist_tracks(sp: spotipy.Spotify, playlist_id: str) -> list:
         tracks = list(map(lambda item: item["track"], data["items"]))
         for track in tracks:
             if track["id"] not in playlist_tracks:
-                playlist_tracks[track["id"]] = track # Deduplicate tracks by ID
+                playlist_tracks[track["id"]] = track  # Deduplicate tracks by ID
 
         if len(tracks) < max_batch_size:
             break

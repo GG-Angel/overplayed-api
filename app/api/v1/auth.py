@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
-from overplayed.config import settings
-from overplayed.api.dependencies import create_spotify_oauth
+from app.dependencies import create_spotify_oauth
 
 router = APIRouter()
 
@@ -19,5 +18,5 @@ def callback(request: Request):
     request.session.clear()
     code = request.query_params.get("code")
     token_info = sp_oauth.get_access_token(code)
-    request.session[settings.session_token_info] = token_info
+    request.session["token_info"] = token_info
     return RedirectResponse(url="/")

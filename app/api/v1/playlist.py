@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import spotipy
-from overplayed.api.dependencies import (
+from app.dependencies import (
     fetch_user_playlists,
     fetch_playlist_tracks,
     get_token_info,
