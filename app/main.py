@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.v1 import auth, playlist
 from app.core.config import config
@@ -21,4 +22,4 @@ app.include_router(playlist.router, prefix="/playlists", tags=["playlists"])
 
 @app.get("/")
 def root():
-    return "User is logged in."
+    return RedirectResponse("/docs")
