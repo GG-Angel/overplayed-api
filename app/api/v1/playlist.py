@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 import spotipy
 from app.dependencies import (
+    fetch_top_track_ids,
     fetch_user_playlists,
     fetch_playlist_tracks,
     get_spotify_client,
@@ -19,9 +20,17 @@ def get_playlists(sp: spotipy.Spotify = Depends(get_spotify_client)):
         return RedirectResponse(url="/auth/login")
 
 
-@router.get("/{playlist_id}")
-def get_tracks(playlist_id: str, sp: spotipy.Spotify = Depends(get_spotify_client)):
+# @router.get("/{playlist_id}")
+# def get_tracks(playlist_id: str, sp: spotipy.Spotify = Depends(get_spotify_client)):
+#     try:
+#         return fetch_playlist_tracks(sp, playlist_id)
+#     except Exception:
+#         return RedirectResponse(url="/auth/login")
+
+
+@router.get("/top")
+def get_top_tracks(sp: spotipy.Spotify = Depends(get_spotify_client)):
     try:
-        return fetch_playlist_tracks(sp, playlist_id)
+        return fetch_top_track_ids(sp)
     except Exception:
         return RedirectResponse(url="/auth/login")

@@ -84,4 +84,17 @@ def fetch_playlist_tracks(sp: spotipy.Spotify, playlist_id: str) -> list:
     return list(playlist_tracks.values())
 
 
+def fetch_top_track_ids(sp: spotipy.Spotify) -> dict:
+    top_tracks = {}
+    time_ranges = ["short_term", "medium_term", "long_term"]
+    for time_range in time_ranges:
+        data = sp.current_user_top_tracks(limit=50, time_range=time_range)
+        if not data:
+            raise ValueError(f"Failed to fetch {time_range} recent tracks")
+        tracks = data["items"]
+        track_ids = set(map(lambda t: t["id"], tracks))
+        top_tracks[time_range] = track_ids
+    return top_tracks
+
+
 # TODO: cache results for 1-6 hours until user applies playlist changes on frontend
