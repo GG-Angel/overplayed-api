@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import spotipy
 from fastapi import Request
@@ -36,3 +37,11 @@ def get_user(sp: spotipy.Spotify) -> dict:
     if not user:
         raise ValueError("Failed to fetch user info")
     return user
+
+
+def parse_datetime(iso_str: str) -> datetime:
+    """Convert an ISO-8601 timestamp (with 'Z') to a datetime object."""
+    try:
+        return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+    except ValueError as e:
+        raise ValueError(f"Invalid ISO-8601 format: {iso_str}") from e
