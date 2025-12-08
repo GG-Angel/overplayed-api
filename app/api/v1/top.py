@@ -19,10 +19,11 @@ def get_top(sp: spotipy.Spotify = Depends(get_spotify_client)):
 def get_top_tracks(sp: spotipy.Spotify):
     top_tracks = {}
     time_ranges = ["short_term", "medium_term", "long_term"]
+    max_limit = 50
     for time_range in time_ranges:
-        response = sp.current_user_top_tracks(limit=50, time_range=time_range)
+        response = sp.current_user_top_tracks(limit=max_limit, time_range=time_range)
         if not response or "items" not in response:
-            raise ValueError(f"Failed to fetch recently played tracks for {time_range}")
+            raise ValueError(f"Failed to fetch top tracks for {time_range}")
         tracks = response.get("items", [])
         top_tracks[time_range] = tracks
 
